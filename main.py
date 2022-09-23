@@ -3,8 +3,8 @@ import timeit
 import pandas as pd
 
 
-SERIAL = 0
-PARALLEL = 1
+SERIAL = 1
+PARALLEL = 0
 
 
 def setupp(blob_samples):
@@ -17,7 +17,7 @@ if SERIAL:
     N = 100 #numero di exe timeit
     n_clusters = '3'
     max_iter = '300'
-    blob_samples = '500'
+    blob_samples = '0'
     bloc_n_features = '3'
     blob_cluster_std = '0.6'  # default is 1
     blob_random_state = '0'  # default is false
@@ -40,16 +40,20 @@ if SERIAL:
     result = pd.DataFrame(k_means_run_serial_t)
     print('\nresult ', result)  # tempo medio del set di esecuzioni timeit (N) per ogni round
 
+    import matplotlib.pyplot as plt
 
-    print('\nParallel starting ')
-    time.sleep(5)
+    plt.plot(result)
+    plt.ylabel('Tempi di esecuzione')
+    plt.show()
 
 if PARALLEL:
+    print('\nParallel starting ')
+    time.sleep(5)
     ###################################
-    N = 100 #numero di exe timeit
+    N = 100     # numero di exe timeit
     n_clusters = '3'
     max_iter = '300'
-    blob_samples = '500'
+    blob_samples = '0'
     bloc_n_features = '3'
     blob_cluster_std = '0.6'  # default is 1
     blob_random_state = '0'  # default is false
@@ -60,7 +64,14 @@ if PARALLEL:
 
     k_means_run_parallel_t = []
 
-    setup = setupp(blob_samples)
-    k_means_run_parallel_t.append(timeit.timeit(stmt=stmt, setup=setup, number=N) / N)
+    for i in range(1,11):
+        blob_samples = str(int(blob_samples) + 500)
+        print('\nblob qui ', blob_samples)
+        setup = setupp(blob_samples)
+        k_means_run_parallel_t.append(timeit.timeit(stmt=stmt, setup=setup, number=N) / N)
 
-    print('k_means_run_parallel_t ', k_means_run_parallel_t)
+    result = pd.DataFrame(k_means_run_parallel_t)
+    print('\nresult ', result)  # tempo medio del set di esecuzioni timeit (N) per ogni round
+
+
+
