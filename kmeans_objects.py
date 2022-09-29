@@ -1,5 +1,8 @@
+import datetime
+
 import numpy as np
 from multiprocessing import Pool
+import matplotlib.pyplot as plt
 
 
 class k_means_serial(object):
@@ -31,9 +34,10 @@ class k_means_serial(object):
 
     def fit(self, blobs):
         self.cluster_centers = self.random_centroids(blobs)
-        for i in range(self.max_iter):
-            X_by_cluster = self.points_clustering(blobs)
+        #print(self.cluster_centers)
 
+        for i in range(self.max_iter):
+            X_by_cluster = self.plot_clustering(blobs)
             new_cl_centers = [c.sum(axis=0) / len(c) for c in X_by_cluster] # new clsuter centers
             new_cl_centers = [arr.tolist() for arr in new_cl_centers]
             old_centers = self.cluster_centers
@@ -43,7 +47,22 @@ class k_means_serial(object):
                 break
             else:
                 self.cluster_centers = new_cl_centers # keep iter
+                #print(self.cluster_centers)
         return self
+
+    def plot_clustering(self, blobs):
+        plt.xlim(-8, 8)
+        plt.ylim(-8, 8)
+        plt.scatter(self.cluster_centers[0][0], self.cluster_centers[0][1], color='red', zorder=1)
+        plt.scatter(self.cluster_centers[1][0], self.cluster_centers[1][1], color='red', zorder=1)
+        plt.scatter(self.cluster_centers[2][0], self.cluster_centers[2][1], color='red', zorder=1)
+        X_by_cluster = self.points_clustering(blobs)
+        plt.scatter(*zip(*X_by_cluster[0]), color='blue', s=3, zorder=0)
+        plt.scatter(*zip(*X_by_cluster[1]), color='orange', s=3, zorder=0)
+        plt.scatter(*zip(*X_by_cluster[2]), s=3, color='purple', zorder=0)
+        plt.savefig('imgs/plt_S/'+ str(datetime.datetime.now())[6:]+'.png')
+        plt.show()
+        return X_by_cluster
 
 
 class k_means_parallel(k_means_serial):
