@@ -37,17 +37,11 @@ class k_means_serial(object):
         #print(self.cluster_centers)
 
         for i in range(self.max_iter):
-            X_by_cluster = self.plot_clustering(blobs)
+            #X_by_cluster = self.plot_clustering(blobs) #to plot
+            X_by_cluster = self.points_clustering(blobs)
             new_cl_centers = [c.sum(axis=0) / len(c) for c in X_by_cluster] # new clsuter centers
             new_cl_centers = [arr.tolist() for arr in new_cl_centers]
-            old_centers = self.cluster_centers
-
-            if np.all(new_cl_centers == old_centers): # check convergence
-                self.number_of_iter = i
-                break
-            else:
-                self.cluster_centers = new_cl_centers # keep iter
-                #print(self.cluster_centers)
+            self.cluster_centers = new_cl_centers  # keep iter
         return self
 
     def plot_clustering(self, blobs):
@@ -85,7 +79,7 @@ class k_means_parallel(k_means_serial):
             result = pool.map(self.points_clustering, splitted_data)
             pool.close()
             pool.join()
-            # splitted e riunito
+            # splitted in più processi e riunito
 
             points_for_cluster = []
             for k in range(0, self.num_of_cluster):
@@ -97,12 +91,7 @@ class k_means_parallel(k_means_serial):
 
             new_cl_centers = [k.sum(axis=0) / len(k) for k in points_for_cluster]
             new_cl_centers = [np.array(arr) for arr in new_cl_centers]
-            old_cl_centers = self.cluster_centers
-            old_cl_centers = [np.array(arr) for arr in old_cl_centers]
-            if all([np.allclose(x, y) for x, y in zip(old_cl_centers, new_cl_centers)]):
-                self.number_of_iter = i
-                break
-            else:
-                self.cluster_centers = new_cl_centers
+            self.cluster_centers = new_cl_centers
+
         self.number_of_iter = i
         return self
