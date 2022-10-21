@@ -25,7 +25,7 @@ if SERIAL:
     N = 50 # numero di exe timeit
     M = 3
     STEP = 30000
-    n_clusters = '3' #todo next exe varia questo
+    n_clusters = '10' #todo next exe varia questo
     max_iter = '8'
     blob_samples = '0'
     bloc_n_features = '3'
@@ -41,10 +41,12 @@ if SERIAL:
     stmt = '''from kmeans_objects import k_means_serial; kmeans = k_means_serial(n_clusters =''' + n_clusters + ''', max_iter = ''' + max_iter + '''); kmeans.fit(blobs)'''
 
     k_means_run_serial_t = [0.0]
+    x_ax = [0]
     for i in range(1, M+1):
         if i > 2:
             print('\nlast loop')
             STEP = 40000
+        x_ax.append(i*STEP)
         blob_samples = str(int(blob_samples) + STEP)
         #print('\nblob qui ', blob_samples)
         setup = setupp(blob_samples)
@@ -52,7 +54,6 @@ if SERIAL:
         plt.plot(i*STEP, k_means_run_serial_t[i], 'o', color='blue')
     #print('\nresult ', pd.DataFrame(k_means_run_serial_t))  # tempo medio del set di esecuzioni timeit (N) per ogni round
 
-    x_ax = [0, 30000, 60000, 100000]
     plt.plot(x_ax, k_means_run_serial_t, '--c', label='Serial execution', color='cyan')
 
     plt.legend(loc="upper left")
@@ -64,8 +65,8 @@ if PARALLEL:
     ###################################
     N = 50     # numero di exe timeit
     M = 3
-    STEP = 30000
-    n_clusters = '3' #todo next exe varia questo
+    FIRST_STEP = 30000
+    n_clusters = '10' #todo next exe varia questo
     max_iter = '8'
     blob_samples = '0'
     bloc_n_features = '3'
@@ -79,20 +80,23 @@ if PARALLEL:
     k_means_parallels = []
     k_means_run_parallel_t_2_cores = [0.0]
     k_means_run_parallel_t_4_cores = [0.0]
-    #k_means_run_parallel_t_6_cores = [0.0]
     k_means_run_parallel_t_8_cores = [0.0]
     k_means_parallels.append(k_means_run_parallel_t_2_cores)
     k_means_parallels.append(k_means_run_parallel_t_4_cores)
-    #k_means_parallels.append(k_means_run_parallel_t_6_cores)
     k_means_parallels.append(k_means_run_parallel_t_8_cores)
     z = 0
+    x_ax = [0]
+    fill_a_ax = True
     for cores_number in (2 ** p for p in range(1, 4)):
         blob_samples = '0'
+        STEP = FIRST_STEP
         stmt = stmtt(str(cores_number))
         for i in range(1, M+1):
             if i > 2:
                 print('\nlast loop')
                 STEP = 40000
+            if fill_a_ax:
+                x_ax.append(i * STEP)
             blob_samples = str(int(blob_samples) + STEP)
             setup = setupp(blob_samples)
             #print('z ', z, ' i ', i)
@@ -103,21 +107,20 @@ if PARALLEL:
                 plt.plot(i * STEP, k_means_run_parallel_t_2_cores[i], 'o', color='orange')
             elif cores_number == 4:
                 plt.plot(i * STEP, k_means_run_parallel_t_4_cores[i], 'o', color='green')
-            #elif cores_number == 6:
-            #    plt.plot(i * STEP, k_means_run_parallel_t_6_cores[i], 'o', color='purple')
             elif cores_number == 8:
                 plt.plot(i * STEP, k_means_run_parallel_t_8_cores[i], 'o', color='black')
+        fill_a_ax = False
         print('\n __ fine for interno ')
         z += 1
+
 
     #print('\nresult_2 ', pd.DataFrame(k_means_run_parallel_t_2_cores))  # tempo medio del set di esecuzioni timeit (N) per ogni round
     #print('\nresult_4 ', pd.DataFrame(k_means_run_parallel_t_4_cores))  # tempo medio del set di esecuzioni timeit (N) per ogni round
     #print('\nresult_6 ', pd.DataFrame(k_means_run_parallel_t_6_cores))  # tempo medio del set di esecuzioni timeit (N) per ogni round
     #print('\nresult_8 ', pd.DataFrame(k_means_run_parallel_t_8_cores))  # tempo medio del set di esecuzioni timeit (N) per ogni round
-    x_ax = [0, 30000, 60000, 100000]
+
     plt.plot(x_ax, k_means_run_parallel_t_2_cores, '--c', label='2_Core Parallel execution', color='orange')
     plt.plot(x_ax, k_means_run_parallel_t_4_cores, '--c', label='4_Core Parallel execution', color='green')
-    #plt.plot(np.arange(0, M*STEP, STEP), k_means_run_parallel_t_6_cores, '--c', label='6_Core Parallel execution', color='purple')
     plt.plot(x_ax, k_means_run_parallel_t_8_cores, '--c', label='8_Core Parallel execution', color='black')
     plt.legend(loc="upper left")
 
