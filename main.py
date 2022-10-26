@@ -23,7 +23,7 @@ def stmtt(n_cores):
 if SERIAL:
     ###################################
     N = 50 # numero di exe timeit
-    M = 3                                                                   
+    M = 3
     STEP = 30000
     n_clusters = '3'
     max_iter = '8'
