@@ -1,4 +1,5 @@
 import datetime
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 from multiprocessing import Pool
@@ -38,7 +39,8 @@ class k_means_serial(object):
 
         for i in range(self.max_iter):
             #X_by_cluster = self.plot_clustering(blobs) #to plot
-            X_by_cluster = self.points_clustering(blobs)
+            executor = ThreadPoolExecutor(max_workers=50)
+            X_by_cluster = executor.submit(self.points_clustering, blobs).result()
             new_cl_centers = [c.sum(axis=0) / len(c) for c in X_by_cluster] # new clsuter centers
             new_cl_centers = [arr.tolist() for arr in new_cl_centers]
             self.cluster_centers = new_cl_centers  # keep iter
@@ -76,7 +78,8 @@ class k_means_parallel(k_means_serial):
             splitted_data = self.shuffle(blobs, self.num_cores)
 
             pool = Pool()
-            result = pool.map(self.points_clustering, splitted_data)
+            executor = ThreadPoolExecutor(max_workers=50)
+            result = executor.submit(pool.map, self.points_clustering, splitted_data).result()
             pool.close()
             pool.join()
             # splitted in più processi e riunito
