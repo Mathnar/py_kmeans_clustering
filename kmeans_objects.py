@@ -82,6 +82,7 @@ class k_means_parallel(k_means_serial):
             result = executor.submit(pool.map, self.points_clustering, splitted_data).result()
             pool.close()
             pool.join()
+            print('ciao matte')
             # splitted in più processi e riunito
 
             points_for_cluster = []
